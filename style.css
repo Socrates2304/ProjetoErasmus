@@ -1,0 +1,176 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #fff5f7;
+    color: #3d2930;
+    min-height: 100vh;
+}
+
+
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 50px 0;
+}
+
+
+/* HEADER */
+
+header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+h1 {
+    font-size: 42px;
+    color: #d94f70;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #765962;
+    margin-bottom: 20px;
+}
+
+.progress {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
+/* BINGO */
+
+.bingo-container {
+    display: flex;
+    justify-content: center;
+}
+
+.bingo-board {
+    width: 100%;
+    max-width: 700px;
+
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+
+    gap: 8px;
+}
+
+
+.bingo-cell {
+    aspect-ratio: 1 / 1;
+
+    background: white;
+
+    border: 2px solid #f2b6c3;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+
+.bingo-cell:hover {
+    transform: scale(1.03);
+    background: #fff0f3;
+}
+
+
+/* CASA COMPLETADA */
+
+.bingo-cell.completed {
+    background: #d94f70;
+    color: white;
+
+    border-color: #d94f70;
+
+    transform: scale(0.97);
+}
+
+
+.bingo-cell.completed::before {
+    content: "✓";
+
+    position: absolute;
+
+    font-size: 35px;
+    opacity: 0.25;
+}
+
+
+/* INFO */
+
+.info {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.info p {
+    margin-bottom: 15px;
+}
+
+
+#reset-button {
+    border: none;
+
+    background: #3d2930;
+    color: white;
+
+    padding: 10px 18px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+#reset-button:hover {
+    background: #5a3c45;
+}
+
+
+/* TELEMÓVEL */
+
+@media (max-width: 600px) {
+
+    .container {
+        width: 95%;
+        padding: 30px 0;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    .subtitle {
+        font-size: 15px;
+    }
+
+    .bingo-board {
+        gap: 4px;
+    }
+
+    .bingo-cell {
+        border-radius: 7px;
+        padding: 5px;
+        font-size: 10px;
+    }
+
+}
