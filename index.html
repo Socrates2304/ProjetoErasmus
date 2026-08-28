@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -7,9 +8,231 @@
     <title>Our Date Bingo ❤️</title>
 
     <link rel="stylesheet" href="style.css">
+
+
+    <!-- ==========================================
+         ESTILO DA PÁGINA DE ACESSO
+         ========================================== -->
+
+    <style>
+
+        /* ==========================================
+           POPUP DE ACESSO
+           ========================================== */
+
+        #access-screen {
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background: rgba(255, 255, 255, 0.98);
+
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            z-index: 999999;
+
+            overflow: hidden;
+
+        }
+
+
+        /* ==========================================
+           CAIXA
+           ========================================== */
+
+        .access-box {
+
+            width: 90%;
+            max-width: 400px;
+
+            padding: 40px 30px;
+
+            text-align: center;
+
+            background: white;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.12);
+
+        }
+
+
+        /* ==========================================
+           CORAÇÃO
+           ========================================== */
+
+        .access-heart {
+
+            font-size: 60px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        /* ==========================================
+           TÍTULO
+           ========================================== */
+
+        .access-box h1 {
+
+            margin: 0 0 10px 0;
+
+        }
+
+
+        /* ==========================================
+           TEXTO
+           ========================================== */
+
+        .access-box p {
+
+            margin: 10px 0;
+
+        }
+
+
+        /* ==========================================
+           INPUT
+           ========================================== */
+
+        #access-code {
+
+            width: 100%;
+
+            box-sizing: border-box;
+
+            padding: 14px;
+
+            margin-top: 20px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 10px;
+
+            font-size: 16px;
+
+            text-align: center;
+
+            outline: none;
+
+        }
+
+
+        #access-code:focus {
+
+            border-color: #ff6b81;
+
+        }
+
+
+        /* ==========================================
+           BOTÃO
+           ========================================== */
+
+        #access-button {
+
+            width: 100%;
+
+            padding: 14px;
+
+            margin-top: 12px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            font-size: 16px;
+
+            cursor: pointer;
+
+        }
+
+
+        /* ==========================================
+           MENSAGEM DE ERRO
+           ========================================== */
+
+        #access-error {
+
+            min-height: 22px;
+
+            margin-top: 15px;
+
+            font-size: 14px;
+
+        }
+
+    </style>
+
 </head>
 
+
 <body>
+
+
+    <!-- ==========================================
+         PÁGINA / POPUP DE ACESSO
+         ========================================== -->
+
+    <div id="access-screen">
+
+        <div class="access-box">
+
+            <div class="access-heart">
+                ❤️
+            </div>
+
+
+            <h1>
+                Our Date Bingo
+            </h1>
+
+
+            <p>
+                Este espaço é só nosso ❤️
+            </p>
+
+
+            <p>
+                Introduzam o código para continuar.
+            </p>
+
+
+            <input
+                type="password"
+                id="access-code"
+                placeholder="Código de acesso"
+                autocomplete="off"
+            >
+
+
+            <button
+                id="access-button"
+                type="button"
+            >
+                Entrar ❤️
+            </button>
+
+
+            <p id="access-error"></p>
+
+        </div>
+
+    </div>
+
 
     <main class="container">
 
@@ -692,5 +915,131 @@
     <script src="meeting.js"></script>
 
 
+    <!-- ==========================================
+         CONTROLO DO ACESSO
+         ========================================== -->
+
+    <script>
+
+        // ==========================================
+        // CÓDIGO DE ACESSO
+        // ==========================================
+
+        const ACCESS_CODE = "123456";
+
+
+        // ==========================================
+        // ELEMENTOS
+        // ==========================================
+
+        const accessScreen =
+            document.getElementById("access-screen");
+
+        const accessInput =
+            document.getElementById("access-code");
+
+        const accessButton =
+            document.getElementById("access-button");
+
+        const accessError =
+            document.getElementById("access-error");
+
+
+        // ==========================================
+        // VERIFICAR CÓDIGO
+        // ==========================================
+
+        function checkAccess() {
+
+            const enteredCode =
+                accessInput.value.trim();
+
+
+            if (enteredCode === ACCESS_CODE) {
+
+                accessScreen.remove();
+
+            }
+
+            else {
+
+                accessError.textContent =
+                    "Código incorreto ❤️";
+
+                accessInput.value = "";
+
+                accessInput.focus();
+
+            }
+
+        }
+
+
+        // ==========================================
+        // BOTÃO
+        // ==========================================
+
+        accessButton.addEventListener(
+            "click",
+            checkAccess
+        );
+
+
+        // ==========================================
+        // ENTER
+        // ==========================================
+
+        accessInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Enter") {
+
+                    checkAccess();
+
+                }
+
+            }
+        );
+
+
+        // ==========================================
+        // IMPEDIR ESC
+        // ==========================================
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key === "Escape" &&
+                    document.getElementById("access-screen")
+                ) {
+
+                    event.preventDefault();
+
+                }
+
+            }
+        );
+
+
+        // ==========================================
+        // FOCAR AUTOMATICAMENTE NO INPUT
+        // ==========================================
+
+        window.addEventListener(
+            "load",
+            () => {
+
+                accessInput.focus();
+
+            }
+        );
+
+    </script>
+
+
 </body>
 </html>
+```
