@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Our Date Bingo ❤️</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="container">
+
+        <header>
+
+            <h1>Our Date Bingo ❤️</h1>
+
+            <p class="subtitle">
+                Porque a distância não significa que deixamos de ter dates.
+            </p>
+
+
+            <!-- ==========================================
+                 PRÓXIMO ENCONTRO
+                 ========================================== -->
+
+            <section class="next-meeting">
+
+                <h2>❤️ Next time together</h2>
+
+                <p id="meeting-date">
+                    A carregar...
+                </p>
+
+
+                <div id="countdown" class="countdown">
+
+                    <div>
+                        <span id="days">0</span>
+                        <small>dias</small>
+                    </div>
+
+                    <div>
+                        <span id="hours">0</span>
+                        <small>horas</small>
+                    </div>
+
+                    <div>
+                        <span id="minutes">0</span>
+                        <small>minutos</small>
+                    </div>
+
+                    <div>
+                        <span id="seconds">0</span>
+                        <small>segundos</small>
+                    </div>
+
+                </div>
+
+
+                <button id="change-meeting-button">
+                    📅 Alterar data
+                </button>
+
+            </section>
+
+
+            <!-- ==========================================
+                 PROGRESSO
+                 ========================================== -->
+
+            <div class="progress">
+
+                <span id="completed-count">0</span>
+                / 16 dates completed
+
+            </div>
+
+        </header>
+
+
+        <!-- ==========================================
+             BINGO
+             ========================================== -->
+
+        <section class="bingo-container">
+
+            <div
+                id="bingo-board"
+                class="bingo-board"
+            >
+                <!-- Criado pelo JavaScript -->
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================
+             INFO / BOTÕES
+             ========================================== -->
+
+        <section class="info">
+
+            <p>
+                💕 Completem os dates e tentem fazer uma linha!
+            </p>
+
+
+            <div class="action-buttons">
+
+                <button
+                    id="add-date-button"
+                    class="add-date-button"
+                >
+                    ➕ Adicionar Date
+                </button>
+
+
+                <button
+                    id="reset-button"
+                >
+                    🎲 Novo Bingo
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==========================================
+         MODAL PARA CONCLUIR UM DATE
+         ========================================== -->
+
+    <div
+        id="date-modal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content">
+
+            <button
+                id="close-modal"
+                class="close-modal"
+            >
+                ×
+            </button>
+
+
+            <h2 id="modal-title">
+                Date ❤️
+            </h2>
+
+
+            <p>
+                Conseguiram fazer este date? ❤️
+            </p>
+
+
+            <label>
+                📸 Fotografia do date
+            </label>
+
+
+            <input
+                type="file"
+                id="photo-input"
+                accept="image/*"
+            >
+
+
+            <div id="photo-preview"></div>
+
+
+            <label>
+                👤 Quem participou?
+            </label>
+
+
+            <div class="person-options">
+
+                <button
+                    type="button"
+                    class="person-button"
+                    data-person="Leandro"
+                >
+                    Leandro
+                </button>
+
+
+                <button
+                    type="button"
+                    class="person-button"
+                    data-person="Carolina"
+                >
+                    Carolina
+                </button>
+
+
+                <button
+                    type="button"
+                    class="person-button"
+                    data-person="Leandro e Carolina"
+                >
+                    Os dois ❤️
+                </button>
+
+            </div>
+
+
+            <label for="note-input">
+                💬 Uma memória (opcional)
+            </label>
+
+
+            <textarea
+                id="note-input"
+                placeholder="Escrevam aqui uma pequena memória deste date..."
+            ></textarea>
+
+
+            <button
+                id="save-date"
+                class="save-button"
+            >
+                Guardar Date ❤️
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         MODAL DO PRÓXIMO ENCONTRO
+         ========================================== -->
+
+    <div
+        id="meeting-modal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content">
+
+            <button
+                id="close-meeting-modal"
+                class="close-modal"
+            >
+                ×
+            </button>
+
+
+            <h2>
+                📅 Próximo encontro ❤️
+            </h2>
+
+
+            <p>
+                Quando é que se vão voltar a encontrar?
+            </p>
+
+
+            <label for="meeting-date-input">
+                Escolham a data e hora:
+            </label>
+
+
+            <input
+                type="datetime-local"
+                id="meeting-date-input"
+            >
+
+
+            <button
+                id="save-meeting"
+                class="save-button"
+            >
+                Guardar data ❤️
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         MODAL ADICIONAR DATE
+         ========================================== -->
+
+    <div
+        id="add-date-modal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content">
+
+            <button
+                id="close-add-date-modal"
+                class="close-modal"
+            >
+                ×
+            </button>
+
+
+            <h2>
+                ➕ Adicionar um Date ❤️
+            </h2>
+
+
+            <p>
+                Criem um novo date para poder aparecer no Bingo.
+            </p>
+
+
+            <!-- NOME -->
+
+            <label for="new-date-title">
+                💕 Nome do Date
+            </label>
+
+
+            <input
+                type="text"
+                id="new-date-title"
+                placeholder="Ex: Fazer pizza juntos"
+                maxlength="100"
+            >
+
+
+            <!-- EMOJI -->
+
+            <label>
+                😊 Escolher Emoji
+            </label>
+
+
+            <div
+                id="emoji-picker"
+                class="emoji-picker"
+            >
+
+                <!-- AMOR -->
+
+                <button
+                    type="button"
+                    class="emoji-option selected"
+                >
+                    ❤️
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🥰
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    💕
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    💖
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    💗
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    💘
+                </button>
+
+
+                <!-- FILMES -->
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎬
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎥
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    📺
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🍿
+                </button>
+
+
+                <!-- COMIDA -->
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🍕
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🍝
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🍔
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🍰
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🍪
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    ☕
+                </button>
+
+
+                <!-- JOGOS -->
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎮
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎲
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🃏
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎯
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎤
+                </button>
+
+
+                <!-- MÚSICA -->
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎵
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎧
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎸
+                </button>
+
+
+                <!-- VIAGENS / PASSEIOS -->
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    ✈️
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🚗
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🌅
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🌃
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🏖️
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🌲
+                </button>
+
+
+                <!-- OUTROS -->
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    📚
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    📸
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎨
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🎁
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🕯️
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🌙
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🥳
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    😂
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    😎
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🥹
+                </button>
+
+                <button
+                    type="button"
+                    class="emoji-option"
+                >
+                    🤭
+                </button>
+
+            </div>
+
+
+            <p id="selected-emoji">
+                Emoji escolhido: ❤️
+            </p>
+
+
+            <!-- GUARDAR -->
+
+            <button
+                id="save-new-date"
+                class="save-button"
+            >
+                Adicionar Date ❤️
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         SUPABASE
+         ========================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <!-- ==========================================
+         JAVASCRIPT DO BINGO
+         ========================================== -->
+
+    <script src="script.js"></script>
+
+
+    <!-- ==========================================
+         JAVASCRIPT DO PRÓXIMO ENCONTRO
+         ========================================== -->
+
+    <script src="meeting.js"></script>
+
+
+</body>
+</html>

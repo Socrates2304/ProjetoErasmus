@@ -1,140 +1,2007 @@
-const dates = [
-    "Ver um filme juntos 🎬",
-    "Cozinhar a mesma receita 🍝",
-    "Jogar um jogo online 🎮",
-    "Ter um jantar à luz das velas 🕯️",
-    "Fazer uma chamada até adormecer 🌙",
+// ==========================================
+// SUPABASE
+// ==========================================
 
-    "Escolher uma música um para o outro 🎵",
-    "Fazer uma playlist juntos 🎧",
-    "Tomar café juntos por videochamada ☕",
-    "Ter um date de madrugada 🌃",
-    "Fazer karaoke juntos 🎤",
+const SUPABASE_URL =
+    "https://dxadtzmoyipxgfwslonz.supabase.co";
 
-    "Planear uma viagem juntos ✈️",
-    "Fazer um quiz sobre nós 🧠",
-    "Ver o pôr do sol em chamada 🌅",
-    "Ler juntos durante 30 minutos 📚",
-    "Jogar cartas online 🃏",
+const SUPABASE_KEY =
+    "sb_publishable_K_0cA_cqTOk3LLbBXB1cJg_CCNcnY7C";
 
-    "Pedir a mesma comida 🍕",
-    "Recriar o nosso primeiro date ❤️",
-    "Fazer um date surpresa 🎁",
-    "Ver fotos antigas juntos 📸",
-    "Fazer um desenho um do outro 🎨",
-
-    "Contar 3 coisas que adoramos um no outro 💕",
-    "Ter um date sem telemóveis 📵",
-    "Ver uma série juntos 📺",
-    "Fazer um date completamente aleatório 🎲",
-    "FREE DATE ❤️"
-];
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
 
-const bingoBoard = document.getElementById("bingo-board");
-const completedCount = document.getElementById("completed-count");
-const resetButton = document.getElementById("reset-button");
+// ==========================================
+// ELEMENTOS
+// ==========================================
 
-let completedDates = [];
+const bingoBoard =
+    document.getElementById("bingo-board");
 
+const completedCount =
+    document.getElementById("completed-count");
 
-/* CRIAR O BINGO */
-
-function createBoard() {
-
-    bingoBoard.innerHTML = "";
-
-    dates.forEach((date, index) => {
-
-        const cell = document.createElement("div");
-
-        cell.classList.add("bingo-cell");
-
-        cell.textContent = date;
-
-        cell.dataset.index = index;
+const resetButton =
+    document.getElementById("reset-button");
 
 
-        cell.addEventListener("click", () => {
+// ==========================================
+// MODAL DOS DATES
+// ==========================================
 
-            toggleDate(index);
+const modal =
+    document.getElementById("date-modal");
 
-        });
+const modalTitle =
+    document.getElementById("modal-title");
+
+const closeModal =
+    document.getElementById("close-modal");
+
+const photoInput =
+    document.getElementById("photo-input");
+
+const photoPreview =
+    document.getElementById("photo-preview");
+
+const noteInput =
+    document.getElementById("note-input");
+
+const saveDateButton =
+    document.getElementById("save-date");
+
+const personButtons =
+    document.querySelectorAll(".person-button");
 
 
-        bingoBoard.appendChild(cell);
+// ==========================================
+// MODAL ADICIONAR DATE
+// ==========================================
 
-    });
+const addDateButton =
+    document.getElementById("add-date-button");
+
+const addDateModal =
+    document.getElementById("add-date-modal");
+
+const closeAddDateModal =
+    document.getElementById("close-add-date-modal");
+
+const newDateTitle =
+    document.getElementById("new-date-title");
+
+const newDateEmoji =
+    document.getElementById("new-date-emoji");
+
+const saveNewDateButton =
+    document.getElementById("save-new-date");
+
+
+// ==========================================
+// VARIÁVEIS
+// ==========================================
+
+let dates = [];
+
+let currentBingoIds = [];
+
+let completedBingoIds = [];
+
+let selectedDateId = null;
+
+let selectedPerson = null;
+
+let selectedPhoto = null;
+
+
+// ==========================================
+// BINGO CONCLUÍDO
+// ==========================================
+
+let bingoAlreadyWon = false;
+
+let winningCombination = [];
+
+
+// ==========================================
+// CRIAR POPUP DE BINGO
+// ==========================================
+
+function createBingoPopup() {
+
+    if (document.getElementById("bingo-win-modal")) {
+        return;
+    }
+
+    const popup =
+        document.createElement("div");
+
+    popup.id =
+        "bingo-win-modal";
+
+    popup.className =
+        "bingo-win-modal hidden";
+
+    popup.innerHTML = `
+
+        <div class="bingo-win-content">
+
+            <button
+                id="close-bingo-win"
+                class="bingo-win-close"
+            >
+                ×
+            </button>
+
+            <div class="bingo-win-icon">
+                🎉
+            </div>
+
+            <h2>
+                BINGO! ❤️
+            </h2>
+
+            <p class="bingo-win-message">
+                Conseguiram completar uma linha!
+            </p>
+
+            <div
+                id="winning-board"
+                class="winning-board"
+            ></div>
+
+            <p class="bingo-win-small">
+                Este foi o vosso Bingo! 🥰
+            </p>
+
+            <div class="bingo-win-buttons">
+
+                <button
+                    id="continue-bingo-button"
+                    class="continue-bingo-button"
+                >
+                    Continuar ❤️
+                </button>
+
+                <button
+                    id="new-bingo-button"
+                    class="new-bingo-button"
+                >
+                    🎲 Novo Bingo
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+    document.body.appendChild(popup);
+
+
+    document
+        .getElementById("close-bingo-win")
+        .addEventListener(
+            "click",
+            closeBingoPopup
+        );
+
+
+    document
+        .getElementById("continue-bingo-button")
+        .addEventListener(
+            "click",
+            closeBingoPopup
+        );
+
+
+    document
+        .getElementById("new-bingo-button")
+        .addEventListener(
+            "click",
+            async () => {
+
+                closeBingoPopup();
+
+                await createNewBingo();
+
+            }
+        );
+
+
+    popup.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target === popup
+            ) {
+
+                closeBingoPopup();
+
+            }
+
+        }
+    );
 
 }
 
 
-/* MARCAR / DESMARCAR DATE */
+// ==========================================
+// ABRIR POPUP BINGO
+// ==========================================
 
-function toggleDate(index) {
+function showBingoPopup() {
 
-    if (completedDates.includes(index)) {
+    createBingoPopup();
 
-        completedDates = completedDates.filter(
-            dateIndex => dateIndex !== index
+
+    const popup =
+        document.getElementById(
+            "bingo-win-modal"
         );
 
-    } else {
 
-        completedDates.push(index);
+    const winningBoard =
+        document.getElementById(
+            "winning-board"
+        );
+
+
+    winningBoard.innerHTML = "";
+
+
+    // Criar uma miniatura do Bingo
+    // exatamente como estava
+
+    currentBingoIds.forEach(
+        id => {
+
+            const date =
+                dates.find(
+                    item =>
+                        Number(item.id) ===
+                        Number(id)
+                );
+
+
+            if (!date) return;
+
+
+            const cell =
+                document.createElement("div");
+
+
+            cell.className =
+                "winning-cell";
+
+
+            const isCompleted =
+                completedBingoIds.includes(
+                    Number(id)
+                );
+
+
+            if (isCompleted) {
+
+                cell.classList.add(
+                    "winning-completed"
+                );
+
+            }
+
+
+            const emoji =
+                document.createElement("div");
+
+
+            emoji.className =
+                "winning-emoji";
+
+
+            emoji.textContent =
+                date.emoji || "❤️";
+
+
+            const title =
+                document.createElement("div");
+
+
+            title.className =
+                "winning-title";
+
+
+            title.textContent =
+                date.title;
+
+
+            cell.appendChild(
+                emoji
+            );
+
+
+            cell.appendChild(
+                title
+            );
+
+
+            winningBoard.appendChild(
+                cell
+            );
+
+        }
+    );
+
+
+    // Destacar combinação vencedora
+
+    winningCombination.forEach(
+        id => {
+
+            const cells =
+                winningBoard.querySelectorAll(
+                    ".winning-cell"
+                );
+
+
+            cells.forEach(
+                cell => {
+
+                    const title =
+                        cell.querySelector(
+                            ".winning-title"
+                        );
+
+
+                    const date =
+                        dates.find(
+                            item =>
+                                item.title ===
+                                title.textContent
+                        );
+
+
+                    if (
+                        date &&
+                        Number(date.id) ===
+                        Number(id)
+                    ) {
+
+                        cell.classList.add(
+                            "winning-line"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    popup.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+// ==========================================
+// FECHAR POPUP
+// ==========================================
+
+function closeBingoPopup() {
+
+    const popup =
+        document.getElementById(
+            "bingo-win-modal"
+        );
+
+
+    if (!popup) return;
+
+
+    popup.classList.add(
+        "hidden"
+    );
+
+}
+
+
+// ==========================================
+// DETETAR BINGO
+// ==========================================
+
+function checkForBingo() {
+
+    if (bingoAlreadyWon) {
+        return false;
+    }
+
+
+    const completed =
+        completedBingoIds.map(Number);
+
+
+    // ======================================
+    // LINHAS
+    // ======================================
+
+    for (
+        let row = 0;
+        row < 4;
+        row++
+    ) {
+
+        const line = [];
+
+        for (
+            let column = 0;
+            column < 4;
+            column++
+        ) {
+
+            const index =
+                row * 4 + column;
+
+            const id =
+                Number(
+                    currentBingoIds[index]
+                );
+
+            line.push(id);
+
+        }
+
+
+        if (
+            line.every(
+                id =>
+                    completed.includes(id)
+            )
+        ) {
+
+            winningCombination =
+                line;
+
+            bingoAlreadyWon =
+                true;
+
+            return true;
+
+        }
 
     }
+
+
+    // ======================================
+    // COLUNAS
+    // ======================================
+
+    for (
+        let column = 0;
+        column < 4;
+        column++
+    ) {
+
+        const line = [];
+
+        for (
+            let row = 0;
+            row < 4;
+            row++
+        ) {
+
+            const index =
+                row * 4 + column;
+
+            const id =
+                Number(
+                    currentBingoIds[index]
+                );
+
+            line.push(id);
+
+        }
+
+
+        if (
+            line.every(
+                id =>
+                    completed.includes(id)
+            )
+        ) {
+
+            winningCombination =
+                line;
+
+            bingoAlreadyWon =
+                true;
+
+            return true;
+
+        }
+
+    }
+
+
+    // ======================================
+    // DIAGONAL \
+    // ======================================
+
+    const diagonal1 = [
+        Number(currentBingoIds[0]),
+        Number(currentBingoIds[5]),
+        Number(currentBingoIds[10]),
+        Number(currentBingoIds[15])
+    ];
+
+
+    if (
+        diagonal1.every(
+            id =>
+                completed.includes(id)
+        )
+    ) {
+
+        winningCombination =
+            diagonal1;
+
+        bingoAlreadyWon =
+            true;
+
+        return true;
+
+    }
+
+
+    // ======================================
+    // DIAGONAL /
+    // ======================================
+
+    const diagonal2 = [
+        Number(currentBingoIds[3]),
+        Number(currentBingoIds[6]),
+        Number(currentBingoIds[9]),
+        Number(currentBingoIds[12])
+    ];
+
+
+    if (
+        diagonal2.every(
+            id =>
+                completed.includes(id)
+        )
+    ) {
+
+        winningCombination =
+            diagonal2;
+
+        bingoAlreadyWon =
+            true;
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+// ==========================================
+// SORTEAR ARRAY
+// ==========================================
+
+function shuffleArray(array) {
+
+    const shuffled =
+        [...array];
+
+
+    for (
+        let i = shuffled.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+
+
+        [
+            shuffled[i],
+            shuffled[j]
+        ] =
+        [
+            shuffled[j],
+            shuffled[i]
+        ];
+
+    }
+
+
+    return shuffled;
+
+}
+
+
+// ==========================================
+// CARREGAR DATES
+// ==========================================
+
+async function loadDates() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("Dates")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Erro ao carregar dates:",
+            error
+        );
+
+        return;
+
+    }
+
+
+    dates =
+        data || [];
+
+
+    if (dates.length < 16) {
+
+        bingoBoard.innerHTML = `
+
+            <p style="
+                grid-column: 1 / -1;
+                text-align: center;
+                padding: 30px;
+            ">
+
+                Precisam de existir pelo menos
+                16 dates ❤️
+
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    const {
+        data: bingoData,
+        error: bingoError
+    } =
+        await supabaseClient
+            .from("CurrentBingo")
+            .select("*")
+            .eq(
+                "id",
+                1
+            )
+            .maybeSingle();
+
+
+    if (bingoError) {
+
+        console.error(
+            "Erro ao carregar Bingo:",
+            bingoError
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !bingoData ||
+        !bingoData.date_ids ||
+        bingoData.date_ids.length !== 16
+    ) {
+
+        await createNewBingo();
+
+        return;
+
+    }
+
+
+    currentBingoIds =
+        bingoData.date_ids.map(
+            Number
+        );
+
+
+    completedBingoIds =
+        (
+            bingoData.completed_ids ||
+            []
+        ).map(
+            Number
+        );
+
+
+    bingoAlreadyWon =
+        false;
+
+    winningCombination =
+        [];
+
+
+    const validBingo =
+        currentBingoIds.every(
+            id =>
+                dates.some(
+                    date =>
+                        Number(date.id) ===
+                        id
+                )
+        );
+
+
+    if (!validBingo) {
+
+        await createNewBingo();
+
+        return;
+
+    }
+
+
+    createBoard();
 
     updateBoard();
 
 }
 
 
-/* ATUALIZAR O VISUAL */
+// ==========================================
+// CRIAR NOVO BINGO
+// ==========================================
 
-function updateBoard() {
+async function createNewBingo() {
 
-    const cells = document.querySelectorAll(".bingo-cell");
+    if (dates.length < 16) {
 
-    cells.forEach((cell, index) => {
+        alert(
+            "Precisam de ter pelo menos 16 dates disponíveis ❤️"
+        );
 
-        if (completedDates.includes(index)) {
+        return;
 
-            cell.classList.add("completed");
-
-        } else {
-
-            cell.classList.remove("completed");
-
-        }
-
-    });
+    }
 
 
-    completedCount.textContent = completedDates.length;
+    const shuffled =
+        shuffleArray(dates);
+
+
+    const selectedDates =
+        shuffled.slice(
+            0,
+            16
+        );
+
+
+    currentBingoIds =
+        selectedDates.map(
+            date =>
+                Number(date.id)
+        );
+
+
+    completedBingoIds =
+        [];
+
+
+    bingoAlreadyWon =
+        false;
+
+
+    winningCombination =
+        [];
+
+
+    const {
+        data: existingBingo
+    } =
+        await supabaseClient
+            .from("CurrentBingo")
+            .select("id")
+            .eq(
+                "id",
+                1
+            )
+            .maybeSingle();
+
+
+    let error;
+
+
+    if (existingBingo) {
+
+        const result =
+            await supabaseClient
+                .from("CurrentBingo")
+                .update({
+
+                    date_ids:
+                        currentBingoIds,
+
+                    completed_ids:
+                        [],
+
+                    updated_at:
+                        new Date()
+                            .toISOString()
+
+                })
+                .eq(
+                    "id",
+                    1
+                );
+
+
+        error =
+            result.error;
+
+    }
+
+    else {
+
+        const result =
+            await supabaseClient
+                .from("CurrentBingo")
+                .insert({
+
+                    id:
+                        1,
+
+                    date_ids:
+                        currentBingoIds,
+
+                    completed_ids:
+                        [],
+
+                    updated_at:
+                        new Date()
+                            .toISOString()
+
+                });
+
+
+        error =
+            result.error;
+
+    }
+
+
+    if (error) {
+
+        console.error(
+            "Erro ao criar Bingo:",
+            error
+        );
+
+        alert(
+            "Não foi possível criar o novo Bingo."
+        );
+
+        return;
+
+    }
+
+
+    createBoard();
+
+    updateBoard();
 
 }
 
 
-/* RESET */
+// ==========================================
+// CRIAR TABULEIRO
+// ==========================================
 
-resetButton.addEventListener("click", () => {
+function createBoard() {
 
-    const confirmation = confirm(
-        "Têm a certeza que querem apagar todos os dates?"
+    bingoBoard.innerHTML = "";
+
+
+    currentBingoIds.forEach(
+        id => {
+
+            const date =
+                dates.find(
+                    item =>
+                        Number(item.id) ===
+                        Number(id)
+                );
+
+
+            if (!date) return;
+
+
+            const cell =
+                document.createElement("div");
+
+
+            cell.classList.add(
+                "bingo-cell"
+            );
+
+
+            cell.dataset.id =
+                date.id;
+
+
+            const isCompleted =
+                completedBingoIds.includes(
+                    Number(date.id)
+                );
+
+
+            if (
+                isCompleted &&
+                date.photo_url
+            ) {
+
+                const image =
+                    document.createElement("img");
+
+
+                image.src =
+                    date.photo_url;
+
+
+                image.alt =
+                    date.title;
+
+
+                image.classList.add(
+                    "date-photo"
+                );
+
+
+                cell.appendChild(
+                    image
+                );
+
+
+                const heart =
+                    document.createElement("span");
+
+
+                heart.classList.add(
+                    "date-completed-heart"
+                );
+
+
+                heart.textContent =
+                    "❤️";
+
+
+                cell.appendChild(
+                    heart
+                );
+
+            }
+
+            else {
+
+                const emoji =
+                    document.createElement("div");
+
+
+                emoji.classList.add(
+                    "date-emoji"
+                );
+
+
+                emoji.textContent =
+                    date.emoji ||
+                    "❤️";
+
+
+                const title =
+                    document.createElement("div");
+
+
+                title.classList.add(
+                    "date-title"
+                );
+
+
+                title.textContent =
+                    date.title;
+
+
+                cell.appendChild(
+                    emoji
+                );
+
+
+                cell.appendChild(
+                    title
+                );
+
+            }
+
+
+            cell.addEventListener(
+                "click",
+                () => {
+
+                    openDateModal(
+                        date.id
+                    );
+
+                }
+            );
+
+
+            bingoBoard.appendChild(
+                cell
+            );
+
+        }
     );
 
-    if (confirmation) {
+}
 
-        completedDates = [];
 
-        updateBoard();
+// ==========================================
+// ATUALIZAR TABULEIRO
+// ==========================================
+
+function updateBoard() {
+
+    completedCount.textContent =
+        completedBingoIds.length;
+
+
+    document
+        .querySelectorAll(
+            ".bingo-cell"
+        )
+        .forEach(
+            cell => {
+
+                const id =
+                    Number(
+                        cell.dataset.id
+                    );
+
+
+                if (
+                    completedBingoIds.includes(
+                        id
+                    )
+                ) {
+
+                    cell.classList.add(
+                        "completed"
+                    );
+
+                }
+
+                else {
+
+                    cell.classList.remove(
+                        "completed"
+                    );
+
+                }
+
+            }
+        );
+
+}
+
+
+// ==========================================
+// ABRIR MODAL DATE
+// ==========================================
+
+function openDateModal(id) {
+
+    const date =
+        dates.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+
+    if (!date) return;
+
+
+    selectedDateId =
+        Number(date.id);
+
+
+    selectedPerson =
+        date.completed_by ||
+        null;
+
+
+    selectedPhoto =
+        null;
+
+
+    modalTitle.textContent =
+        `${date.emoji || "❤️"} ${date.title}`;
+
+
+    noteInput.value =
+        date.note || "";
+
+
+    photoInput.value =
+        "";
+
+
+    photoPreview.innerHTML =
+        "";
+
+
+    if (date.photo_url) {
+
+        const image =
+            document.createElement("img");
+
+
+        image.src =
+            date.photo_url;
+
+
+        image.classList.add(
+            "preview-image"
+        );
+
+
+        photoPreview.appendChild(
+            image
+        );
 
     }
 
-});
+
+    personButtons.forEach(
+        button => {
+
+            button.classList.remove(
+                "selected"
+            );
 
 
-/* INICIAR */
+            if (
+                button.dataset.person ===
+                date.completed_by
+            ) {
 
-createBoard();
+                button.classList.add(
+                    "selected"
+                );
+
+            }
+
+        }
+    );
+
+
+    modal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+// ==========================================
+// FECHAR MODAL DATE
+// ==========================================
+
+function closeDateModal() {
+
+    modal.classList.add(
+        "hidden"
+    );
+
+
+    selectedDateId =
+        null;
+
+
+    selectedPerson =
+        null;
+
+
+    selectedPhoto =
+        null;
+
+}
+
+
+closeModal.addEventListener(
+    "click",
+    closeDateModal
+);
+
+
+modal.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target === modal
+        ) {
+
+            closeDateModal();
+
+        }
+
+    }
+);
+
+
+// ==========================================
+// PESSOA
+// ==========================================
+
+personButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                selectedPerson =
+                    button.dataset.person;
+
+
+                personButtons.forEach(
+                    otherButton => {
+
+                        otherButton.classList.remove(
+                            "selected"
+                        );
+
+                    }
+                );
+
+
+                button.classList.add(
+                    "selected"
+                );
+
+            }
+        );
+
+    }
+);
+
+
+// ==========================================
+// FOTO
+// ==========================================
+
+photoInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            photoInput.files[0];
+
+
+        if (!file) {
+
+            selectedPhoto =
+                null;
+
+            return;
+
+        }
+
+
+        selectedPhoto =
+            file;
+
+
+        const image =
+            document.createElement("img");
+
+
+        image.src =
+            URL.createObjectURL(
+                file
+            );
+
+
+        image.classList.add(
+            "preview-image"
+        );
+
+
+        photoPreview.innerHTML =
+            "";
+
+
+        photoPreview.appendChild(
+            image
+        );
+
+    }
+);
+
+
+// ==========================================
+// GUARDAR DATE
+// ==========================================
+
+saveDateButton.addEventListener(
+    "click",
+    saveDate
+);
+
+
+async function saveDate() {
+
+    if (!selectedDateId) return;
+
+
+    const date =
+        dates.find(
+            item =>
+                Number(item.id) ===
+                Number(selectedDateId)
+        );
+
+
+    if (!date) return;
+
+
+    const alreadyCompleted =
+        completedBingoIds.includes(
+            Number(selectedDateId)
+        );
+
+
+    if (
+        !alreadyCompleted &&
+        !selectedPhoto
+    ) {
+
+        alert(
+            "Para completar o date precisam de adicionar uma fotografia 📸❤️"
+        );
+
+        return;
+
+    }
+
+
+    if (!selectedPerson) {
+
+        alert(
+            "Escolham quem participou no date ❤️"
+        );
+
+        return;
+
+    }
+
+
+    saveDateButton.disabled =
+        true;
+
+
+    saveDateButton.textContent =
+        "A guardar...";
+
+
+    try {
+
+        let photoUrl =
+            date.photo_url;
+
+
+        if (selectedPhoto) {
+
+            const extension =
+                selectedPhoto.name
+                    .split(".")
+                    .pop();
+
+
+            const fileName =
+                `${date.id}-${Date.now()}.${extension}`;
+
+
+            const {
+                error: uploadError
+            } =
+                await supabaseClient
+                    .storage
+                    .from("date-photos")
+                    .upload(
+                        fileName,
+                        selectedPhoto
+                    );
+
+
+            if (uploadError) {
+
+                throw uploadError;
+
+            }
+
+
+            const {
+                data: publicUrlData
+            } =
+                supabaseClient
+                    .storage
+                    .from("date-photos")
+                    .getPublicUrl(
+                        fileName
+                    );
+
+
+            photoUrl =
+                publicUrlData.publicUrl;
+
+        }
+
+
+        const {
+            error: updateError
+        } =
+            await supabaseClient
+                .from("Dates")
+                .update({
+
+                    completed:
+                        true,
+
+                    completed_by:
+                        selectedPerson,
+
+                    completed_at:
+                        new Date()
+                            .toISOString(),
+
+                    photo_url:
+                        photoUrl,
+
+                    note:
+                        noteInput.value.trim()
+
+                })
+                .eq(
+                    "id",
+                    selectedDateId
+                );
+
+
+        if (updateError) {
+
+            throw updateError;
+
+        }
+
+
+        if (
+            !completedBingoIds.includes(
+                Number(selectedDateId)
+            )
+        ) {
+
+            completedBingoIds.push(
+                Number(selectedDateId)
+            );
+
+        }
+
+
+        const {
+            error: bingoError
+        } =
+            await supabaseClient
+                .from("CurrentBingo")
+                .update({
+
+                    completed_ids:
+                        completedBingoIds,
+
+                    updated_at:
+                        new Date()
+                            .toISOString()
+
+                })
+                .eq(
+                    "id",
+                    1
+                );
+
+
+        if (bingoError) {
+
+            throw bingoError;
+
+        }
+
+
+        const localDate =
+            dates.find(
+                item =>
+                    Number(item.id) ===
+                    Number(selectedDateId)
+            );
+
+
+        if (localDate) {
+
+            localDate.completed =
+                true;
+
+            localDate.completed_by =
+                selectedPerson;
+
+            localDate.completed_at =
+                new Date()
+                    .toISOString();
+
+            localDate.photo_url =
+                photoUrl;
+
+            localDate.note =
+                noteInput.value.trim();
+
+        }
+
+
+        createBoard();
+
+        updateBoard();
+
+        closeDateModal();
+
+
+        // ==================================
+        // VERIFICAR BINGO
+        // ==================================
+
+        const hasBingo =
+            checkForBingo();
+
+
+        if (hasBingo) {
+
+            // Pequeno atraso para
+            // a casa terminar a animação
+
+            setTimeout(
+                () => {
+
+                    showBingoPopup();
+
+                },
+                400
+            );
+
+        }
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Erro ao guardar date:",
+            error
+        );
+
+
+        alert(
+            "Ocorreu um erro ao guardar o date."
+        );
+
+    }
+
+
+    finally {
+
+        saveDateButton.disabled =
+            false;
+
+        saveDateButton.textContent =
+            "Guardar Date ❤️";
+
+    }
+
+}
+
+
+// ==========================================
+// NOVO BINGO
+// ==========================================
+
+resetButton.addEventListener(
+    "click",
+    async () => {
+
+        const confirmation =
+            confirm(
+                "Criar um novo Bingo com 16 dates aleatórios? 🎲❤️"
+            );
+
+
+        if (!confirmation) return;
+
+
+        resetButton.disabled =
+            true;
+
+
+        resetButton.textContent =
+            "A sortear...";
+
+
+        try {
+
+            await createNewBingo();
+
+        }
+
+        finally {
+
+            resetButton.disabled =
+                false;
+
+            resetButton.textContent =
+                "🎲 Novo Bingo";
+
+        }
+
+    }
+);
+
+
+// ==========================================
+// ADICIONAR DATE
+// ==========================================
+
+if (addDateButton) {
+
+    addDateButton.addEventListener(
+        "click",
+        () => {
+
+            newDateTitle.value =
+                "";
+
+
+            newDateEmoji.value =
+                "";
+
+
+            addDateModal.classList.remove(
+                "hidden"
+            );
+
+
+            newDateTitle.focus();
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// FECHAR ADICIONAR DATE
+// ==========================================
+
+if (closeAddDateModal) {
+
+    closeAddDateModal.addEventListener(
+        "click",
+        () => {
+
+            addDateModal.classList.add(
+                "hidden"
+            );
+
+        }
+    );
+
+}
+
+
+if (addDateModal) {
+
+    addDateModal.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                addDateModal
+            ) {
+
+                addDateModal.classList.add(
+                    "hidden"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// GUARDAR NOVO DATE
+// ==========================================
+
+if (saveNewDateButton) {
+
+    saveNewDateButton.addEventListener(
+        "click",
+        addNewDate
+    );
+
+}
+
+
+async function addNewDate() {
+
+    const title =
+        newDateTitle.value.trim();
+
+
+    const emoji =
+        newDateEmoji.value.trim() ||
+        "❤️";
+
+
+    if (!title) {
+
+        alert(
+            "Escrevam primeiro o nome do date ❤️"
+        );
+
+        newDateTitle.focus();
+
+        return;
+
+    }
+
+
+    saveNewDateButton.disabled =
+        true;
+
+
+    saveNewDateButton.textContent =
+        "A adicionar...";
+
+
+    try {
+
+        const {
+            data: lastDates,
+            error: positionError
+        } =
+            await supabaseClient
+                .from("Dates")
+                .select("position")
+                .order(
+                    "position",
+                    {
+                        ascending: false
+                    }
+                )
+                .limit(1);
+
+
+        if (positionError) {
+
+            throw positionError;
+
+        }
+
+
+        let nextPosition =
+            1;
+
+
+        if (
+            lastDates &&
+            lastDates.length > 0 &&
+            lastDates[0].position !== null
+        ) {
+
+            nextPosition =
+                Number(
+                    lastDates[0].position
+                ) + 1;
+
+        }
+
+
+        const {
+            error: insertError
+        } =
+            await supabaseClient
+                .from("Dates")
+                .insert({
+
+                    title:
+                        title,
+
+                    emoji:
+                        emoji,
+
+                    position:
+                        nextPosition,
+
+                    completed:
+                        false,
+
+                    completed_by:
+                        null,
+
+                    completed_at:
+                        null,
+
+                    photo_url:
+                        null,
+
+                    note:
+                        null
+
+                });
+
+
+        if (insertError) {
+
+            throw insertError;
+
+        }
+
+
+        addDateModal.classList.add(
+            "hidden"
+        );
+
+
+        newDateTitle.value =
+            "";
+
+        newDateEmoji.value =
+            "";
+
+
+        alert(
+            "Date adicionado com sucesso! ❤️"
+        );
+
+
+        await loadDates();
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Erro ao adicionar date:",
+            error
+        );
+
+
+        alert(
+            "Não foi possível adicionar o date."
+        );
+
+    }
+
+
+    finally {
+
+        saveNewDateButton.disabled =
+            false;
+
+
+        saveNewDateButton.textContent =
+            "Adicionar Date ❤️";
+
+    }
+
+}
+
+
+// ==========================================
+// REALTIME — DATES
+// ==========================================
+
+supabaseClient
+    .channel("dates-changes")
+    .on(
+        "postgres_changes",
+        {
+            event: "*",
+            schema: "public",
+            table: "Dates"
+        },
+        () => {
+
+            loadDates();
+
+        }
+    )
+    .subscribe();
+
+
+// ==========================================
+// REALTIME — BINGO
+// ==========================================
+
+supabaseClient
+    .channel("bingo-changes")
+    .on(
+        "postgres_changes",
+        {
+            event: "*",
+            schema: "public",
+            table: "CurrentBingo"
+        },
+        () => {
+
+            loadDates();
+
+        }
+    )
+    .subscribe();
+
+
+// ==========================================
+// CRIAR POPUP
+// ==========================================
+
+createBingoPopup();
+
+
+// ==========================================
+// INICIAR
+// ==========================================
+
+loadDates();
