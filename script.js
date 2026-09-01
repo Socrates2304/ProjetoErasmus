@@ -74,11 +74,18 @@ const closeAddDateModal =
 const newDateTitle =
     document.getElementById("new-date-title");
 
-const newDateEmoji =
-    document.getElementById("new-date-emoji");
-
 const saveNewDateButton =
     document.getElementById("save-new-date");
+
+
+// ==========================================
+// EMOJIS DO NOVO DATE
+// ==========================================
+
+const emojiOptions =
+    document.querySelectorAll(".emoji-option");
+
+let selectedNewDateEmoji = "❤️";
 
 
 // ==========================================
@@ -255,9 +262,6 @@ function showBingoPopup() {
     winningBoard.innerHTML = "";
 
 
-    // Criar uma miniatura do Bingo
-    // exatamente como estava
-
     currentBingoIds.forEach(
         id => {
 
@@ -336,8 +340,6 @@ function showBingoPopup() {
         }
     );
 
-
-    // Destacar combinação vencedora
 
     winningCombination.forEach(
         id => {
@@ -1594,18 +1596,11 @@ async function saveDate() {
         closeDateModal();
 
 
-        // ==================================
-        // VERIFICAR BINGO
-        // ==================================
-
         const hasBingo =
             checkForBingo();
 
 
         if (hasBingo) {
-
-            // Pequeno atraso para
-            // a casa terminar a animação
 
             setTimeout(
                 () => {
@@ -1707,9 +1702,45 @@ if (addDateButton) {
             newDateTitle.value =
                 "";
 
+            selectedNewDateEmoji =
+                "❤️";
 
-            newDateEmoji.value =
-                "";
+
+            emojiOptions.forEach(
+                option => {
+
+                    option.classList.remove(
+                        "selected"
+                    );
+
+
+                    if (
+                        option.textContent.trim() ===
+                        "❤️"
+                    ) {
+
+                        option.classList.add(
+                            "selected"
+                        );
+
+                    }
+
+                }
+            );
+
+
+            const selectedEmojiText =
+                document.getElementById(
+                    "selected-emoji"
+                );
+
+
+            if (selectedEmojiText) {
+
+                selectedEmojiText.textContent =
+                    "Emoji escolhido: ❤️";
+
+            }
 
 
             addDateModal.classList.remove(
@@ -1723,6 +1754,57 @@ if (addDateButton) {
     );
 
 }
+
+
+// ==========================================
+// ESCOLHER EMOJI
+// ==========================================
+
+emojiOptions.forEach(
+    option => {
+
+        option.addEventListener(
+            "click",
+            () => {
+
+                selectedNewDateEmoji =
+                    option.textContent.trim();
+
+
+                emojiOptions.forEach(
+                    otherOption => {
+
+                        otherOption.classList.remove(
+                            "selected"
+                        );
+
+                    }
+                );
+
+
+                option.classList.add(
+                    "selected"
+                );
+
+
+                const selectedEmojiText =
+                    document.getElementById(
+                        "selected-emoji"
+                    );
+
+
+                if (selectedEmojiText) {
+
+                    selectedEmojiText.textContent =
+                        `Emoji escolhido: ${selectedNewDateEmoji}`;
+
+                }
+
+            }
+        );
+
+    }
+);
 
 
 // ==========================================
@@ -1789,7 +1871,7 @@ async function addNewDate() {
 
 
     const emoji =
-        newDateEmoji.value.trim() ||
+        selectedNewDateEmoji ||
         "❤️";
 
 
@@ -1906,8 +1988,46 @@ async function addNewDate() {
         newDateTitle.value =
             "";
 
-        newDateEmoji.value =
-            "";
+
+        selectedNewDateEmoji =
+            "❤️";
+
+
+        emojiOptions.forEach(
+            option => {
+
+                option.classList.remove(
+                    "selected"
+                );
+
+
+                if (
+                    option.textContent.trim() ===
+                    "❤️"
+                ) {
+
+                    option.classList.add(
+                        "selected"
+                    );
+
+                }
+
+            }
+        );
+
+
+        const selectedEmojiText =
+            document.getElementById(
+                "selected-emoji"
+            );
+
+
+        if (selectedEmojiText) {
+
+            selectedEmojiText.textContent =
+                "Emoji escolhido: ❤️";
+
+        }
 
 
         alert(
