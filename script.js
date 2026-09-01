@@ -28,6 +28,9 @@ const completedCount =
 const resetButton =
     document.getElementById("reset-button");
 
+const randomDateButton =
+    document.getElementById("random-date-button");
+
 
 // ==========================================
 // MODAL DOS DATES
@@ -115,6 +118,374 @@ let winningCombination = [];
 
 
 // ==========================================
+// CRIAR POPUP DATE SORTEADO
+// ==========================================
+
+function createRandomDatePopup() {
+
+    if (
+        document.getElementById(
+            "random-date-modal"
+        )
+    ) {
+        return;
+    }
+
+
+    const popup =
+        document.createElement("div");
+
+
+    popup.id =
+        "random-date-modal";
+
+
+    popup.className =
+        "random-date-modal hidden";
+
+
+    popup.innerHTML = `
+
+        <div class="random-date-content">
+
+            <button
+                id="close-random-date"
+                class="random-date-close"
+                type="button"
+            >
+                ×
+            </button>
+
+
+            <div class="random-date-icon">
+                🎯
+            </div>
+
+
+            <p class="random-date-label">
+                O vosso date sorteado é...
+            </p>
+
+
+            <div
+                id="random-date-emoji"
+                class="random-date-emoji"
+            >
+                ❤️
+            </div>
+
+
+            <h2
+                id="random-date-title"
+                class="random-date-title"
+            >
+                Date
+            </h2>
+
+
+            <p class="random-date-message">
+                Que tal fazerem este date? ❤️
+            </p>
+
+
+            <button
+                id="random-date-again"
+                class="random-date-confirm"
+                type="button"
+            >
+                🎲 Sortear outro
+            </button>
+
+
+            <button
+                id="random-date-finish"
+                class="continue-bingo-button"
+                type="button"
+                style="
+                    margin-top: 10px;
+                    width: 100%;
+                "
+            >
+                Fechar ❤️
+            </button>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        popup
+    );
+
+
+    const closeButton =
+        document.getElementById(
+            "close-random-date"
+        );
+
+
+    const againButton =
+        document.getElementById(
+            "random-date-again"
+        );
+
+
+    const finishButton =
+        document.getElementById(
+            "random-date-finish"
+        );
+
+
+    closeButton.addEventListener(
+        "click",
+        closeRandomDatePopup
+    );
+
+
+    finishButton.addEventListener(
+        "click",
+        closeRandomDatePopup
+    );
+
+
+    againButton.addEventListener(
+        "click",
+        randomDateFromBingo
+    );
+
+
+    popup.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target === popup
+            ) {
+
+                closeRandomDatePopup();
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// ABRIR POPUP DATE SORTEADO
+// ==========================================
+
+function showRandomDatePopup(
+    selectedDate
+) {
+
+    createRandomDatePopup();
+
+
+    const popup =
+        document.getElementById(
+            "random-date-modal"
+        );
+
+
+    const emoji =
+        document.getElementById(
+            "random-date-emoji"
+        );
+
+
+    const title =
+        document.getElementById(
+            "random-date-title"
+        );
+
+
+    if (!popup || !emoji || !title) {
+
+        console.error(
+            "Não foi possível criar o popup do date sorteado."
+        );
+
+        return;
+
+    }
+
+
+    emoji.textContent =
+        selectedDate.emoji || "❤️";
+
+
+    title.textContent =
+        selectedDate.title;
+
+
+    popup.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+// ==========================================
+// FECHAR POPUP DATE SORTEADO
+// ==========================================
+
+function closeRandomDatePopup() {
+
+    const popup =
+        document.getElementById(
+            "random-date-modal"
+        );
+
+
+    if (!popup) return;
+
+
+    popup.classList.add(
+        "hidden"
+    );
+
+}
+
+
+// ==========================================
+// SORTEAR UM DOS 16 DATES
+// ==========================================
+
+function randomDateFromBingo() {
+
+    console.log(
+        "Botão Sortear Date pressionado."
+    );
+
+
+    // ======================================
+    // VERIFICAR SE EXISTEM 16 CASAS
+    // ======================================
+
+    if (
+        !currentBingoIds ||
+        currentBingoIds.length !== 16
+    ) {
+
+        alert(
+            "Ainda não existem 16 dates no Bingo ❤️"
+        );
+
+        console.error(
+            "currentBingoIds:",
+            currentBingoIds
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // ENCONTRAR OS DATES DO BINGO
+    // ======================================
+
+    const bingoDates =
+        currentBingoIds
+            .map(
+                id => {
+
+                    return dates.find(
+                        date =>
+                            Number(date.id) ===
+                            Number(id)
+                    );
+
+                }
+            )
+            .filter(Boolean);
+
+
+    // ======================================
+    // VERIFICAR SE ENCONTROU OS 16
+    // ======================================
+
+    if (
+        bingoDates.length !== 16
+    ) {
+
+        alert(
+            "Não foi possível encontrar os 16 dates do Bingo ❤️"
+        );
+
+        console.error(
+            "Dates encontrados:",
+            bingoDates
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // ESCOLHER DATE ALEATÓRIO
+    // ======================================
+
+    const randomIndex =
+        Math.floor(
+            Math.random() *
+            bingoDates.length
+        );
+
+
+    const selectedRandomDate =
+        bingoDates[randomIndex];
+
+
+    console.log(
+        "Date sorteado:",
+        selectedRandomDate
+    );
+
+
+    // ======================================
+    // MOSTRAR POPUP
+    // ======================================
+
+    showRandomDatePopup(
+        selectedRandomDate
+    );
+
+}
+
+
+// ==========================================
+// BOTÃO SORTEAR DATE
+// ==========================================
+
+if (randomDateButton) {
+
+    console.log(
+        "Botão Sortear Date encontrado."
+    );
+
+
+    randomDateButton.addEventListener(
+        "click",
+        randomDateFromBingo
+    );
+
+}
+
+else {
+
+    console.error(
+        "ERRO: Não encontrei o botão #random-date-button no HTML."
+    );
+
+}
+
+
+// ==========================================
 // CRIAR POPUP DE BINGO
 // ==========================================
 
@@ -140,6 +511,7 @@ function createBingoPopup() {
             <button
                 id="close-bingo-win"
                 class="bingo-win-close"
+                type="button"
             >
                 ×
             </button>
@@ -170,6 +542,7 @@ function createBingoPopup() {
                 <button
                     id="continue-bingo-button"
                     class="continue-bingo-button"
+                    type="button"
                 >
                     Continuar ❤️
                 </button>
@@ -177,6 +550,7 @@ function createBingoPopup() {
                 <button
                     id="new-bingo-button"
                     class="new-bingo-button"
+                    type="button"
                 >
                     🎲 Novo Bingo
                 </button>
@@ -341,41 +715,36 @@ function showBingoPopup() {
     );
 
 
+    // ======================================
+    // DESTACAR LINHA/COLUNA/DIAGONAL
+    // ======================================
+
+    const cells =
+        winningBoard.querySelectorAll(
+            ".winning-cell"
+        );
+
+
     winningCombination.forEach(
         id => {
 
-            const cells =
-                winningBoard.querySelectorAll(
-                    ".winning-cell"
-                );
-
-
-            cells.forEach(
-                cell => {
-
-                    const title =
-                        cell.querySelector(
-                            ".winning-title"
-                        );
-
-
-                    const date =
-                        dates.find(
-                            item =>
-                                item.title ===
-                                title.textContent
-                        );
-
+            currentBingoIds.forEach(
+                (bingoId, index) => {
 
                     if (
-                        date &&
-                        Number(date.id) ===
+                        Number(bingoId) ===
                         Number(id)
                     ) {
 
-                        cell.classList.add(
-                            "winning-line"
-                        );
+                        if (cells[index]) {
+
+                            cells[index]
+                                .classList
+                                .add(
+                                    "winning-line"
+                                );
+
+                        }
 
                     }
 
@@ -394,7 +763,7 @@ function showBingoPopup() {
 
 
 // ==========================================
-// FECHAR POPUP
+// FECHAR POPUP BINGO
 // ==========================================
 
 function closeBingoPopup() {
@@ -537,10 +906,23 @@ function checkForBingo() {
     // ======================================
 
     const diagonal1 = [
-        Number(currentBingoIds[0]),
-        Number(currentBingoIds[5]),
-        Number(currentBingoIds[10]),
-        Number(currentBingoIds[15])
+
+        Number(
+            currentBingoIds[0]
+        ),
+
+        Number(
+            currentBingoIds[5]
+        ),
+
+        Number(
+            currentBingoIds[10]
+        ),
+
+        Number(
+            currentBingoIds[15]
+        )
+
     ];
 
 
@@ -567,10 +949,23 @@ function checkForBingo() {
     // ======================================
 
     const diagonal2 = [
-        Number(currentBingoIds[3]),
-        Number(currentBingoIds[6]),
-        Number(currentBingoIds[9]),
-        Number(currentBingoIds[12])
+
+        Number(
+            currentBingoIds[3]
+        ),
+
+        Number(
+            currentBingoIds[6]
+        ),
+
+        Number(
+            currentBingoIds[9]
+        ),
+
+        Number(
+            currentBingoIds[12]
+        )
+
     ];
 
 
@@ -2114,10 +2509,12 @@ supabaseClient
 
 
 // ==========================================
-// CRIAR POPUP
+// CRIAR POPUPS
 // ==========================================
 
 createBingoPopup();
+
+createRandomDatePopup();
 
 
 // ==========================================
